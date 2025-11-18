@@ -2,6 +2,8 @@ import { useEffect } from 'react'
 import './App.css'
 import TextType from './TextType'
 import CardSwap, { Card } from './CardSwap'
+import TiltedCard from './TiltedCard'
+import { Home, Sparkles, BookOpen, FileText, Download, Mail } from 'lucide-react'
 
 const featureCards = [
   {
@@ -33,24 +35,21 @@ const featureCards = [
 const reactBitsCards = [
   {
     title: 'Schedule Grid',
-    badge: 'Layered Card',
+    imageSrc: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="300"%3E%3Crect width="400" height="300" fill="%231b5e20"/%3E%3C/svg%3E',
     description:
-      'A layered card shows how My Schedule stacks each day with color-coded subjects for clarity.',
-    bullets: ['Weekly grid snapshot', 'Conflict-free preview', 'Static data entry'],
+      'Build your weekly schedule with color-coded subjects, fixed day and time slots, room assignments, and teacher information for the entire semester.',
   },
   {
     title: 'Teacher & Room Notes',
-    badge: 'Layered Card',
+    imageSrc: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="300"%3E%3Crect width="400" height="300" fill="%232e7d32"/%3E%3C/svg%3E',
     description:
-      'Attach instructor names, consultation hours, and room numbers to every block so the APK mirrors your printed planner.',
-    bullets: ['Instructor focus', 'Room reference', 'Offline-friendly'],
+      'Access instructor names, consultation hours, and room numbers for every subject block. Keep all your class details organized in one place.',
   },
   {
     title: 'Download Center',
-    badge: 'Layered Card',
+    imageSrc: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="300"%3E%3Crect width="400" height="300" fill="%23388e3c"/%3E%3C/svg%3E',
     description:
-      'Showcase registrar forms, request slips, and campus maps inside a bold neon card that guides users to static downloads.',
-    bullets: ['Registrar-ready PDFs', 'Campus map bundle', 'Contact list'],
+      'Download registrar forms, request slips, campus maps, and essential documents. All resources are bundled in the APK for offline access.',
   },
 ]
 
@@ -225,13 +224,42 @@ function App() {
         </div>
       </header>
 
+      <nav className="nav-bar">
+        <div className="nav-bar__container">
+          <a href="#top" className="nav-card">
+            <Home className="nav-card__icon" />
+            <span className="nav-card__label">Home</span>
+          </a>
+          <a href="#features" className="nav-card">
+            <Sparkles className="nav-card__icon" />
+            <span className="nav-card__label">Features</span>
+          </a>
+          <a href="#reactbits" className="nav-card">
+            <BookOpen className="nav-card__icon" />
+            <span className="nav-card__label">Handbook</span>
+          </a>
+          <a href="#services" className="nav-card">
+            <FileText className="nav-card__icon" />
+            <span className="nav-card__label">Services</span>
+          </a>
+          <a href="#download" className="nav-card">
+            <Download className="nav-card__icon" />
+            <span className="nav-card__label">Download</span>
+          </a>
+          <a href="#contact" className="nav-card">
+            <Mail className="nav-card__icon" />
+            <span className="nav-card__label">Contact</span>
+          </a>
+        </div>
+      </nav>
+
       <section className="section highlights section--grid" id="features" data-animate="section">
         <div className="section__decor" aria-hidden="true">
           <span className="section__orb section__orb--lime" />
           <span className="section__mesh section__mesh--diagonal" />
         </div>
         <header className="section__header">
-          <p className="section__eyebrow">Designed for IT students</p>
+          <p className="section__eyebrow">Designed for BulSU Bustos Campus</p>
           <h2>Tech-themed experience that mirrors the Android app</h2>
           <p>Every tile below highlights static bundles already packaged inside the APK.</p>
         </header>
@@ -263,32 +291,42 @@ function App() {
           <span className="section__mesh section__mesh--dots" />
         </div>
         <header className="section__header">
-          <p className="section__eyebrow">Layered UI preview</p>
-          <h2>Cards that mirror the app experience</h2>
+          <p className="section__eyebrow">BulSU Bustos Handbook features</p>
+          <h2>Essential tools for your academic journey</h2>
           <p>
-            These static cards mimic the bold neon panels used inside the APK, giving a
-            visual taste of how My Schedule, teacher notes, and the download center look
-            once the app is installed.
+            The BulSU E-Handbook provides everything you need for a successful semester. From
+            building your schedule to accessing campus resources, all features work offline once
+            the app is installed.
           </p>
         </header>
         <div className="bits-grid" data-animate="grid">
           {reactBitsCards.map((card, index) => (
-            <article
-              className="bits-card"
+            <div
               key={card.title}
               data-animate="card"
-              data-tilt
               style={{ '--stagger': index }}
             >
-              <span className="bits-card__badge">{card.badge}</span>
-              <h3>{card.title}</h3>
-              <p>{card.description}</p>
-              <ul>
-                {card.bullets.map((bullet) => (
-                  <li key={bullet}>{bullet}</li>
-                ))}
-              </ul>
-            </article>
+              <TiltedCard
+                imageSrc={card.imageSrc}
+                altText={card.title}
+                captionText=""
+                containerHeight="auto"
+                containerWidth="100%"
+                imageHeight="100%"
+                imageWidth="100%"
+                rotateAmplitude={12}
+                scaleOnHover={1.05}
+                showMobileWarning={false}
+                showTooltip={false}
+                displayOverlayContent={true}
+                overlayContent={
+                  <div className="tilted-card-content">
+                    <h3 className="tilted-card-title">{card.title}</h3>
+                    <p className="tilted-card-description">{card.description}</p>
+                  </div>
+                }
+              />
+            </div>
           ))}
         </div>
       </section>
@@ -357,6 +395,26 @@ function App() {
           </a>
           <p>
             Need updates? <a href="mailto:bulsu.handbook@edu.ph">Contact the dev team</a>
+          </p>
+        </div>
+      </section>
+
+      <section className="section contact section--grid" id="contact" data-animate="section">
+        <div className="section__decor" aria-hidden="true">
+          <span className="section__orb section__orb--lime" />
+          <span className="section__mesh section__mesh--diagonal" />
+        </div>
+        <header className="section__header">
+          <p className="section__eyebrow">Get in touch</p>
+          <h2>Contact Us</h2>
+          <p>Have organization names to add or updates to suggest? We'd love to hear from you!</p>
+        </header>
+        <div className="contact__cta" data-animate="content">
+          <a className="btn btn--primary" href="mailto:delicanagabriel1212@gmail.com?subject=Organization%20Name%20Addition%20or%20Update">
+            Contact Us
+          </a>
+          <p>
+            Email us at <a href="mailto:delicanagabriel1212@gmail.com">delicanagabriel1212@gmail.com</a> for adding organization names and updates.
           </p>
         </div>
       </section>
