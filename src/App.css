@@ -1833,11 +1833,21 @@
     grid-column: auto !important;
     max-width: none !important;
     justify-self: stretch !important;
+    left: auto !important;
+    right: auto !important;
+  }
+  
+  /* Reset all positioning for all bits-grid items on mobile */
+  .bits-grid > * {
+    left: auto !important;
+    right: auto !important;
+    position: relative !important;
   }
 
   .bits-card-simple {
     padding: 1rem;
-    max-height: 280px;
+    max-height: none;
+    min-height: auto;
   }
 
   .bits-card-simple h3 {
@@ -2128,11 +2138,21 @@
     grid-column: auto !important;
     max-width: none !important;
     justify-self: stretch !important;
+    left: auto !important;
+    right: auto !important;
+  }
+  
+  /* Reset all positioning for all bits-grid items on extra small mobile */
+  .bits-grid > * {
+    left: auto !important;
+    right: auto !important;
+    position: relative !important;
   }
 
   .bits-card-simple {
     padding: 0.85rem;
-    max-height: 260px;
+    max-height: none;
+    min-height: auto;
   }
 
   .bits-card-simple h3 {
