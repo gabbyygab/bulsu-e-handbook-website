@@ -7,7 +7,7 @@ import { getDownloadCount, incrementDownloadCount } from './firebase/firebase'
 
 // MediaFire APK Download URL
 // Direct download link for the APK from MediaFire
-const APK_DOWNLOAD_URL = 'https://www.mediafire.com/file/wvqgrn0cykwq2r6/bulsuEHandBook.apk/file'
+const APK_DOWNLOAD_URL = 'https://www.mediafire.com/file/tpw98xjfhht76lk/bulsuEHandbookLatest.apk/file'
 
 const featureCards = [
   {
