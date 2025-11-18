@@ -4,128 +4,198 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-**BulSU E-Handbook** is a native Android mobile application for Bulacan State University's Bustos Campus. The app serves as a comprehensive campus companion providing students with access to university resources and information.
+**BulSU E-Handbook** is a modern web application for Bulacan State University's Bustos Campus. The app serves as a comprehensive campus companion providing students with access to university resources and information.
 
 **Technology Stack:**
-- **Language:** Java
-- **Framework:** Native Android (AndroidX)
-- **UI:** Material Design 3 (Material You)
-- **Build System:** Gradle with Kotlin DSL
-- **Min/Target SDK:** API 24 (Android 7.0) / API 36 (Android 15)
-- **Layout System:** ConstraintLayout
+- **Language:** JavaScript/JSX
+- **Framework:** React 19
+- **Build Tool:** Vite 7
+- **Styling:** Tailwind CSS 4
+- **Animations:** GSAP, Motion (Framer Motion)
+- **3D Graphics:** Three.js
+- **Backend/Database:** Firebase 12.6.0
+- **Icons:** Lucide React
+- **Type:** Single Page Application (SPA)
 
 ## Build and Development Commands
 
+### Development Server
+```bash
+# Start development server (default: http://localhost:5173)
+npm run dev
+
+# Preview production build
+npm run preview
+```
+
 ### Building the Application
 ```bash
-# Build debug APK
-gradlew assembleDebug
+# Build for production (outputs to dist/)
+npm run build
 
-# Build release APK
-gradlew assembleRelease
-
-# Build all variants
-gradlew build
-
-# Clean build artifacts
-gradlew clean
+# Install dependencies
+npm install
 ```
 
-### Running Tests
+### Code Quality
 ```bash
-# Run unit tests
-gradlew test
+# Run ESLint
+npm run lint
 
-# Run instrumented tests (requires emulator or device)
-gradlew connectedAndroidTest
-
-# Run specific test class
-gradlew test --tests "com.example.bulsuehandbook.ExampleUnitTest"
-```
-
-### Development
-```bash
-# Install debug build to connected device/emulator
-gradlew installDebug
-
-# Uninstall from device
-gradlew uninstallDebug
-
-# View dependencies
-gradlew dependencies
-
-# Check for dependency updates
-gradlew dependencyUpdates
-```
-
-### Linting and Code Quality
-```bash
-# Run Android lint checks
-gradlew lint
-
-# Generate lint report
-gradlew lintDebug
+# Fix ESLint issues automatically
+npm run lint -- --fix
 ```
 
 ## Application Architecture
 
 ### Current Structure
-The app currently uses a simple **Activity-based architecture** suitable for the early development stage:
+The app uses a **React Single Page Application (SPA)** architecture:
 
 ```
-MainActivity (Splash/Opening Screen)
-    ↓
-HomePageActivity (Main Dashboard)
-    ├── Student Handbook
-    ├── Campus Map
-    ├── Academic Calendar
-    └── Contact Directory
+src/
+├── App.jsx              # Main application component
+├── App.css              # Application styles
+├── index.css            # Global styles (Tailwind)
+├── main.jsx             # React entry point
+├── firebase/
+│   └── firebase.js      # Firebase configuration and initialization
+├── components/          # Reusable React components
+│   ├── TextType.jsx
+│   ├── CardSwap.jsx
+│   └── TiltedCard.jsx
+├── apk/                 # Android APK files (if any)
+└── documentation/       # Documentation files
 ```
 
-### Key Activities
+### Key Components
 
-1. **MainActivity** (`MainActivity.java`)
-   - Entry point (LAUNCHER activity)
-   - Splash screen with animated logo
-   - Animations: logo scale (2.5x → 1.0x), fade-in text, slide-up button
-   - Transitions to HomePageActivity
+1. **App.jsx** - Main application component
+   - Landing page with animated hero section
+   - Feature cards showcasing app capabilities
+   - Responsive navigation with mobile menu
+   - Interactive UI elements with GSAP animations
 
-2. **HomePageActivity** (`HomePageActivity.java`)
-   - Main dashboard with 4 feature cards
-   - Back navigation to MainActivity
-   - Contains placeholder TODOs for feature implementations
+2. **Firebase Integration** (`src/firebase/firebase.js`)
+   - Firebase initialization
+   - Authentication setup
+   - Firestore database configuration
+   - Storage configuration
 
-### Resource Organization
+### Project Structure
 
-**Layouts:** `app/src/main/res/layout/`
-- `activity_main.xml` - Splash screen
-- `activity_home_page.xml` - Main dashboard
+**Source Files:** `src/`
+- React components (.jsx)
+- Styling files (.css)
+- Firebase configuration
+- Assets and static resources
 
-**Animations:** `app/src/main/res/anim/`
-- `fade_in.xml` - 1000ms fade, 800ms offset
-- `logo_scale_animation.xml` - Scale animation for splash
-- `slide_up.xml` - Button entrance animation
+**Public Assets:** `public/`
+- Static files served directly
+- APK downloads
+- Images and icons
 
-**Drawables:** `app/src/main/res/drawable/`
-- Vector graphics for UI decorations
-- Gradient backgrounds for buttons
-- University branding assets
+**Configuration Files:** (root)
+- `vite.config.js` - Vite build configuration
+- `tailwind.config.js` - Tailwind CSS configuration (if present)
+- `eslint.config.js` - ESLint rules
+- `package.json` - Dependencies and scripts
 
-**Responsive Dimensions:** `app/src/main/res/values-{small,large}/dimens.xml`
-- Device-specific dimension resources for different screen sizes
+## Firebase Integration
+
+### Firebase Setup
+
+**Location:** `src/firebase/firebase.js`
+
+This project uses Firebase 12.6.0 for backend services. The Firebase configuration file should contain:
+
+```javascript
+import { initializeApp } from 'firebase/app';
+import { getAuth } from 'firebase/auth';
+import { getFirestore } from 'firebase/firestore';
+import { getStorage } from 'firebase/storage';
+
+// Firebase configuration object
+const firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_AUTH_DOMAIN",
+  projectId: "YOUR_PROJECT_ID",
+  storageBucket: "YOUR_STORAGE_BUCKET",
+  messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+  appId: "YOUR_APP_ID"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+
+// Initialize Firebase services
+export const auth = getAuth(app);
+export const db = getFirestore(app);
+export const storage = getStorage(app);
+```
+
+### Firebase Services
+
+**Authentication (`getAuth`):**
+- User login/registration (if needed)
+- Session management
+- Anonymous authentication for read-only access
+
+**Firestore Database (`getFirestore`):**
+- Store student schedules
+- Save user preferences
+- Cache downloadable forms metadata
+- Store feedback and suggestions
+
+**Cloud Storage (`getStorage`):**
+- Host downloadable forms (PDFs)
+- Store academic calendars
+- Campus maps and resources
+
+### Environment Variables
+
+**IMPORTANT:** Never commit Firebase credentials to version control.
+
+Create a `.env` file in the root directory:
+```
+VITE_FIREBASE_API_KEY=your_api_key
+VITE_FIREBASE_AUTH_DOMAIN=your_auth_domain
+VITE_FIREBASE_PROJECT_ID=your_project_id
+VITE_FIREBASE_STORAGE_BUCKET=your_storage_bucket
+VITE_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
+VITE_FIREBASE_APP_ID=your_app_id
+```
+
+Then use in `firebase.js`:
+```javascript
+const firebaseConfig = {
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID
+};
+```
+
+**Note:** Add `.env` to `.gitignore` to prevent credential leaks.
 
 ## Feature Set
 
 ### Implemented Features
 
-**Opening Screen:**
-- Animated splash screen with university branding
-- Smooth transitions to main dashboard
-
-**Home Dashboard:**
-- Scrollable card-based interface
-- Material Design 3 styling
+**Landing Page:**
+- Animated hero section with typewriter effect
+- Feature showcase cards
+- Responsive navigation with mobile menu
 - Green university color scheme (#1B5E20, #2E7D32)
+
+**Feature Cards:**
+1. **My Schedule** - Timetable Management (Table & Card view)
+2. **Grade Calculator** - BulSU grading system
+3. **Academic Resources** - Curriculum and regulations
+4. **Campus Information Hub** - Departments and faculty
+5. **Downloadable Forms Center** - Registrar and student forms
+6. **Student Services** - Guidance and awards info
 
 ### Features to Implement (From UI Design)
 
@@ -214,68 +284,105 @@ Current navigation is basic Intent-based transitions. When expanding the app:
 
 ## Data Persistence Strategy
 
-Currently no data layer exists. For implementation:
+### Firebase Firestore (Cloud Database)
+
+**For Dynamic User Data:**
+```javascript
+import { collection, doc, setDoc, getDoc, query, where } from 'firebase/firestore';
+import { db } from './firebase/firebase';
+
+// Collections:
+// - schedules: User timetables
+// - preferences: User settings
+// - feedback: User feedback/suggestions
+```
 
 **For Static Content (Handbook, Regulations, etc.):**
-- Store in `assets/` folder as JSON or text files
-- Consider bundling PDFs for downloadable content
-
-**For Dynamic User Data (Schedules, Notes, etc.):**
-- Implement Room Database
-- Create entities for: Subject, Schedule, UserPreferences
-- Use ViewModel + LiveData for reactive UI updates
+- Store in `public/` folder as JSON or text files
+- Bundle PDFs in Firebase Storage
+- Use dynamic imports for large documents
 
 **For Forms and Documents:**
-- Store URLs to remote documents
-- Implement download manager for offline access
-- Cache downloaded files in app-specific storage
+- Store in Firebase Storage
+- Provide download URLs
+- Implement client-side caching with localStorage/sessionStorage
+
+### Local Storage (Browser)
+- Cache user preferences
+- Store recently viewed pages
+- Save draft schedules before Firebase sync
 
 ## Code Patterns and Conventions
 
-### Package Structure
+### Component Structure
 ```
-com.example.bulsuehandbook/
-├── activities/          (Activity classes)
-├── adapters/            (RecyclerView adapters - to be added)
-├── models/              (Data models - to be added)
-├── utils/               (Utility classes - to be added)
-└── viewmodels/          (ViewModels - to be added)
-```
-
-### Activity Lifecycle
-- Use `onCreate()` for initialization
-- Apply EdgeToEdge with system inset handling for modern Android UI
-- Enable back navigation via manifest parent activity
-- **ALWAYS set `android:screenOrientation="portrait"` for ALL activities** - This app is designed for portrait mode only
-
-### Creating New Activities
-
-When creating a new activity, ALWAYS follow these steps:
-
-1. **Create the Java class** in `app/src/main/java/com/example/bulsuehandbook/`
-2. **Create the layout XML** in `app/src/main/res/layout/`
-3. **Register in AndroidManifest.xml** with the following template:
-
-```xml
-<activity
-    android:name=".YourActivityName"
-    android:exported="false"
-    android:screenOrientation="portrait"
-    android:parentActivityName=".ParentActivity" />
+src/
+├── components/          # Reusable UI components
+│   ├── common/         # Common components (buttons, cards, etc.)
+│   ├── layout/         # Layout components (header, footer, nav)
+│   └── features/       # Feature-specific components
+├── pages/              # Page components (routes)
+├── hooks/              # Custom React hooks
+├── utils/              # Utility functions
+├── contexts/           # React Context providers
+├── services/           # API/Firebase service functions
+└── constants/          # Constants and configuration
 ```
 
-**CRITICAL:** Never forget `android:screenOrientation="portrait"` - this app is portrait-only.
+### React Component Patterns
 
-### Theme and Styling
-- Primary Theme: `Theme.Material3.DayNight.NoActionBar`
-- Support dark mode via `values-night/` resources
-- Use Material Design 3 components (MaterialCardView, MaterialButton, etc.)
+**Function Components with Hooks:**
+```javascript
+import { useState, useEffect } from 'react';
+
+function MyComponent() {
+  const [state, setState] = useState(initialValue);
+
+  useEffect(() => {
+    // Side effects
+  }, [dependencies]);
+
+  return (
+    <div>{/* JSX */}</div>
+  );
+}
+```
+
+**Custom Hooks for Firebase:**
+```javascript
+// hooks/useFirestore.js
+import { useState, useEffect } from 'react';
+import { collection, getDocs } from 'firebase/firestore';
+import { db } from '../firebase/firebase';
+
+export function useCollection(collectionName) {
+  const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const querySnapshot = await getDocs(collection(db, collectionName));
+      setData(querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+      setLoading(false);
+    };
+    fetchData();
+  }, [collectionName]);
+
+  return { data, loading };
+}
+```
+
+### Styling Conventions
+- Use Tailwind CSS utility classes for styling
+- Create custom CSS in component `.css` files only when necessary
+- Follow BulSU color scheme (see Design System section)
+- Responsive design: mobile-first approach
 
 ## Design System & Theme
 
 ### Tech-Themed Visual Identity
 
-The app features a **modern technological design** with circuit board patterns and digital elements, perfect for IT students while maintaining BulSU brand colors.
+The web app features a **modern, clean design** with smooth animations and interactive elements, perfect for students while maintaining BulSU brand colors. Uses GSAP and Framer Motion for animations, with Tailwind CSS for styling.
 
 ### Color Palette
 
@@ -301,59 +408,64 @@ The app features a **modern technological design** with circuit board patterns a
 
 ### Design Components
 
-#### 1. Tech Banners (Top & Bottom)
-**Location:** `app/src/main/res/drawable/`
-- `tech_top_banner.xml` - Top banner with dark green gradient
-- `tech_bottom_banner.xml` - Bottom banner with mirrored gradient
+#### 1. Card Components
 
-**Features:**
-- Dark green gradient background (#1B5E20 → #2E7D32 → #388E3C)
-- Horizontal dashed circuit traces (white, semi-transparent)
-- Diagonal circuit lines at angles (+30°, -25°, ±30°)
-- Angular geometric cuts connecting to body
-- Dark overlay for depth
+**Standard Card Pattern:**
+```jsx
+<div className="bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-shadow">
+  <h3 className="text-xl font-bold text-[#1B5E20] mb-3">{title}</h3>
+  <p className="text-gray-600">{description}</p>
+</div>
+```
 
-**Usage:** Use for headers, section dividers, or app bars
+**Feature Card with Icon:**
+```jsx
+<div className="bg-white rounded-2xl p-6 shadow-md hover:shadow-lg transition-all">
+  <div className="flex items-center gap-4 mb-4">
+    <div className="w-12 h-12 bg-[#1B5E20] rounded-lg flex items-center justify-center">
+      <Icon className="text-white" size={24} />
+    </div>
+    <h3 className="text-lg font-semibold text-[#1B5E20]">{title}</h3>
+  </div>
+  <p className="text-gray-600">{content}</p>
+</div>
+```
 
-#### 2. Circuit Board Pattern
-**Location:** `app/src/main/res/drawable/circuit_pattern.xml`
+**IMPORTANT:** Use regular cards with proper information display. **DO NOT use TiltedCard component** - use standard rectangular cards with hover effects instead.
 
-**Elements:**
-- Large circuit nodes (12-14dp ovals) with white borders
-- Color: #66BB6A, #81C784, #4CAF50
-- Microchip squares (22-35dp) rotated at various angles
-- Circuit connection lines (2dp white rectangles)
-- Semi-transparent overlays (CC/AA alpha)
+#### 2. Button Styles (Tailwind)
 
-**Usage:** Overlay on banners or backgrounds for tech aesthetic
+**Primary Button:**
+```jsx
+<button className="bg-gradient-to-r from-[#2E7D32] via-[#388E3C] to-[#43A047] text-white px-6 py-3 rounded-full font-semibold hover:shadow-lg transition-all">
+  Button Text
+</button>
+```
 
-#### 3. Tech Background
-**Location:** `app/src/main/res/drawable/tech_background.xml`
+**Secondary Button:**
+```jsx
+<button className="bg-white text-[#2E7D32] border-2 border-[#2E7D32] px-6 py-3 rounded-full font-semibold hover:bg-[#2E7D32] hover:text-white transition-all">
+  Button Text
+</button>
+```
 
-**Elements:**
-- Light base background (#FAFAFA)
-- Digital grid dots (4dp ovals) in green shades
-- Tech hexagon rings (35-50dp) with 2dp stroke
-- Binary/Digital bars (5dp width, varying heights) - equalizer style
-- CPU/Chip rectangles (25-30dp) with rounded corners
-- Scattered placement for subtle tech aesthetic
+#### 3. Navigation Components
 
-**Usage:** Body background, content areas
+**Mobile Menu Toggle:**
+```jsx
+{isMobileMenuOpen ? (
+  <X className="text-[#1B5E20]" size={24} />
+) : (
+  <Menu className="text-[#1B5E20]" size={24} />
+)}
+```
 
-#### 4. Button Styles
-
-**Primary Button** (`button_tech_gradient.xml`):
-- Dark green gradient (#2E7D32 → #388E3C → #43A047)
-- 30dp corner radius
-- White text
-- Use for primary actions (Get Started, Submit, Save)
-
-**Secondary Button** (`button_tech_secondary.xml`):
-- White background
-- 2dp dark green border (#2E7D32)
-- Dark green text (#2E7D32)
-- 30dp corner radius
-- Use for secondary actions (My Schedule, Cancel)
+**Navigation Links:**
+```jsx
+<a href="#section" className="text-gray-700 hover:text-[#1B5E20] transition-colors">
+  Link Text
+</a>
+```
 
 ### Typography Colors
 
@@ -369,268 +481,372 @@ The app features a **modern technological design** with circuit board patterns a
 - Links/Buttons: `#2E7D32` (dark green)
 - Accent text: `#388E3C` (medium green)
 
-### Card Design Guidelines
+### Animation Patterns
 
-**CRITICAL: Always set explicit background colors for MaterialCardView components**
+#### GSAP Animations
 
-When creating MaterialCardView components, ALWAYS explicitly set the background color to prevent dark mode or theme issues:
+**Scroll-triggered animations:**
+```javascript
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
-```xml
-<com.google.android.material.card.MaterialCardView
-    android:id="@+id/cardExample"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    app:cardBackgroundColor="#FFFFFF"  <!-- REQUIRED: Always set this -->
-    app:cardCornerRadius="16dp"
-    app:cardElevation="6dp"
-    app:strokeWidth="0dp">
-    <!-- Card content -->
-</com.google.android.material.card.MaterialCardView>
+gsap.registerPlugin(ScrollTrigger);
+
+gsap.from('.feature-card', {
+  scrollTrigger: '.feature-card',
+  y: 50,
+  opacity: 0,
+  duration: 0.8,
+  stagger: 0.2
+});
 ```
 
-**Standard Card Configuration:**
-- Background: `app:cardBackgroundColor="#FFFFFF"` (white)
-- Corner Radius: `app:cardCornerRadius="16dp"`
-- Elevation: `app:cardElevation="6dp"`
-- Stroke Width: `app:strokeWidth="0dp"` (no border)
-- Bottom Margin: `android:layout_marginBottom="16dp"` (spacing between cards)
+#### Framer Motion Animations
 
-**Card Header Pattern with Icons:**
+**Page transitions:**
+```jsx
+import { motion } from 'motion/react';
 
-Use ImageView icons instead of text emojis for better consistency across devices:
-
-```xml
-<LinearLayout
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="horizontal"
-    android:gravity="center_vertical"
-    android:padding="12dp"
-    android:background="@drawable/provision_card_header_bg"
-    android:layout_marginBottom="12dp">
-
-    <!-- Leading Icon -->
-    <ImageView
-        android:layout_width="24dp"
-        android:layout_height="24dp"
-        android:src="@drawable/ic_nav_policies"
-        android:contentDescription="Section Icon"
-        android:layout_marginEnd="12dp"
-        app:tint="#FFFFFF" />
-
-    <!-- Title Text -->
-    <TextView
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:text="Card Title"
-        android:textColor="#FFFFFF"
-        android:textSize="18sp"
-        android:textStyle="bold" />
-
-    <!-- Trailing Icon (expand/navigate) -->
-    <ImageView
-        android:layout_width="24dp"
-        android:layout_height="24dp"
-        android:src="@drawable/ic_expand_more"
-        android:contentDescription="View Details"
-        app:tint="#FFFFFF" />
-</LinearLayout>
+<motion.div
+  initial={{ opacity: 0, y: 20 }}
+  animate={{ opacity: 1, y: 0 }}
+  transition={{ duration: 0.5 }}
+>
+  {content}
+</motion.div>
 ```
 
-**Icon Usage Guidelines:**
-- **DO NOT use emojis** (📚, 🎓, 📖, 📄, etc.) in production layouts
-- **DO use vector drawable icons** from `res/drawable/ic_*.xml`
-- Icons should be 24dp x 24dp for card headers
-- Always set `contentDescription` for accessibility
-- Use `app:tint="#FFFFFF"` for icon color on colored backgrounds
-
-**Available Icons:**
-- `ic_nav_home` - Home/Dashboard
-- `ic_nav_department` - Department/Admin
-- `ic_nav_policies` - Policies/Regulations
-- `ic_nav_services` - Services/Forms
-- `ic_nav_academic` - Academic/Curriculum
-- `ic_nav_others` - Other/Miscellaneous
-- `ic_expand_more` - Expand/Navigate (trailing icon)
-- `ic_back_arrow` - Back navigation
-- `ic_scroll_to_top` - Scroll to top FAB
-
-### Design Patterns
-
-#### Opening/Splash Screen Pattern
-```xml
-<!-- Structure -->
-<ConstraintLayout background="@drawable/tech_background">
-    <View id="topDecoration" background="@drawable/tech_top_banner" height="280dp"/>
-    <View id="circuitPattern" background="@drawable/circuit_pattern" alpha="0.6"/>
-    <CardView id="logoCard" elevation="12dp" cornerRadius="@dimen/logo_corner_radius">
-        <ImageView logo />
-    </CardView>
-    <TextView universityName color="#1B5E20"/>
-    <TextView campusName color="#2E7D32"/>
-    <TextView tagline color="#424242"/>
-    <Button primary background="@drawable/button_tech_gradient"/>
-    <Button secondary background="@drawable/button_tech_secondary"/>
-    <View id="bottomDecoration" background="@drawable/tech_bottom_banner" height="200dp"/>
-    <View id="circuitPatternBottom" alpha="0.5" rotation="180"/>
-</ConstraintLayout>
+**Hover effects:**
+```jsx
+<motion.button
+  whileHover={{ scale: 1.05 }}
+  whileTap={{ scale: 0.95 }}
+>
+  Click me
+</motion.button>
 ```
 
-#### Angular Design System
-- Use angular cuts (2-3° rotation) instead of wavy curves
-- Connect top and bottom sections with matching angles
-- Creates modern, tech-forward aesthetic
+### Layout Patterns
 
-#### Layering System
-1. **Base Layer:** tech_background.xml
-2. **Banner Layer:** tech_top_banner.xml / tech_bottom_banner.xml
-3. **Pattern Overlay:** circuit_pattern.xml (0.5-0.6 alpha)
-4. **Content Layer:** UI elements (logo, text, buttons)
+#### Responsive Grid
+```jsx
+<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+  {items.map(item => <Card key={item.id} {...item} />)}
+</div>
+```
 
-### Animations
+#### Container Pattern
+```jsx
+<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+  {/* Content */}
+</div>
+```
 
-**Opening Screen Animations:**
-- Logo scale: 2.5x → 1.0x
-- Text fade-in: 1000ms duration, 800ms offset
-- Button slide-up: From bottom
-
-**Transition Guidelines:**
-- Use MaterialContainerTransform for screen transitions
-- 300-400ms duration for most transitions
-- Ease-in-out interpolator
+#### Section Pattern
+```jsx
+<section className="py-16 bg-gray-50">
+  <div className="container mx-auto px-4">
+    <h2 className="text-3xl font-bold text-[#1B5E20] mb-8">Section Title</h2>
+    {/* Section content */}
+  </div>
+</section>
+```
 
 ### Accessibility
 
-- Minimum touch target: 48x48dp
+- Minimum touch/click target: 44x44px (mobile), 48x48px (desktop)
 - Text contrast ratios meet WCAG AA standards
 - Dark green (#1B5E20) on white: 9.8:1 ✓
 - Medium green (#2E7D32) on white: 7.4:1 ✓
-- Support for TalkBack and other assistive technologies
+- Semantic HTML elements (nav, main, section, article)
+- ARIA labels for interactive elements
+- Keyboard navigation support
+- Focus states for all interactive elements
 
 ### Responsive Design
 
-**Dimension Resources:**
-- Small devices: `values-small/dimens.xml`
-- Normal devices: `values/dimens.xml`
-- Large devices: `values-large/dimens.xml`
+**Tailwind Breakpoints:**
+- `sm`: 640px (mobile landscape)
+- `md`: 768px (tablet)
+- `lg`: 1024px (desktop)
+- `xl`: 1280px (large desktop)
+- `2xl`: 1536px (extra large)
 
-**Scaling Guidelines:**
-- Use sp for text sizes
-- Use dp for all other dimensions
-- Test on multiple screen sizes (phone, tablet)
+**Mobile-First Approach:**
+```jsx
+<div className="text-base md:text-lg lg:text-xl">
+  Responsive text
+</div>
+```
+
+**Responsive Grid:**
+```jsx
+<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+  {/* Cards */}
+</div>
+```
 
 ### Dark Mode Support (Future)
 
-When implementing dark mode:
-- Background: `#121212` (Material dark surface)
-- Replace light backgrounds with dark equivalents
-- Maintain green color palette with adjusted saturation
-- Increase circuit pattern alpha for visibility
-- Use `values-night/` resource directory
+When implementing dark mode with Tailwind:
+```jsx
+<div className="bg-white dark:bg-gray-900 text-gray-900 dark:text-white">
+  {/* Content */}
+</div>
+```
+
+Add to `tailwind.config.js`:
+```javascript
+module.exports = {
+  darkMode: 'class', // or 'media'
+  // ...
+}
+```
 
 ## Subject Scheduling Implementation Guide
 
 When implementing the subject scheduling feature:
 
-### Database Schema (Room)
-```java
-@Entity(tableName = "subjects")
-class Subject {
-    @PrimaryKey(autoGenerate = true)
-    int id;
-    String subjectName;
-    String subjectCode;
-    String instructor;
-    String room;
-}
+### Firestore Data Structure
 
-@Entity(tableName = "schedules")
-class Schedule {
-    @PrimaryKey(autoGenerate = true)
-    int id;
-    int subjectId;  // Foreign key to Subject
-    int dayOfWeek;  // 1=Monday, 2=Tuesday, etc.
-    String startTime;  // "08:00"
-    String endTime;    // "09:30"
+```javascript
+// Collection: schedules/{userId}/subjects/{subjectId}
+{
+  id: "auto-generated",
+  subjectName: "Data Structures",
+  subjectCode: "CS201",
+  instructor: "Dr. Smith",
+  room: "Room 301",
+  color: "#4CAF50",
+  schedules: [
+    {
+      dayOfWeek: 1,  // 1=Monday, 2=Tuesday, ..., 7=Sunday
+      startTime: "08:00",
+      endTime: "09:30"
+    },
+    {
+      dayOfWeek: 3,  // Wednesday
+      startTime: "08:00",
+      endTime: "09:30"
+    }
+  ],
+  semester: "1st Semester 2024-2025",
+  units: 3
 }
 ```
 
-### UI Components
-- Use RecyclerView for schedule list/grid
-- TimePicker dialogs for time selection
-- CheckBoxes or ToggleButtons for day selection
-- Floating Action Button (FAB) for adding new subjects
+### React Components Structure
+
+```
+src/
+├── pages/
+│   └── Schedule/
+│       ├── SchedulePage.jsx       # Main schedule view
+│       ├── TableView.jsx          # Weekly grid view (8AM-8PM)
+│       ├── CardView.jsx           # Day-by-day card list
+│       └── SubjectForm.jsx        # Add/Edit subject modal
+├── components/
+│   ├── SubjectCard.jsx            # Individual subject card
+│   ├── TimeSlot.jsx               # Time slot in table view
+│   └── DaySelector.jsx            # Checkbox group for days
+└── hooks/
+    └── useSchedule.js             # Custom hook for schedule CRUD
+```
+
+### Custom Hook Example
+
+```javascript
+// hooks/useSchedule.js
+import { useState, useEffect } from 'react';
+import { collection, addDoc, updateDoc, deleteDoc, doc, query, where, getDocs } from 'firebase/firestore';
+import { db } from '../firebase/firebase';
+
+export function useSchedule(userId) {
+  const [subjects, setSubjects] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchSchedule = async () => {
+      const q = query(collection(db, `schedules/${userId}/subjects`));
+      const snapshot = await getDocs(q);
+      setSubjects(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+      setLoading(false);
+    };
+    fetchSchedule();
+  }, [userId]);
+
+  const addSubject = async (subjectData) => {
+    const docRef = await addDoc(collection(db, `schedules/${userId}/subjects`), subjectData);
+    setSubjects([...subjects, { id: docRef.id, ...subjectData }]);
+  };
+
+  const updateSubject = async (subjectId, updates) => {
+    await updateDoc(doc(db, `schedules/${userId}/subjects`, subjectId), updates);
+    setSubjects(subjects.map(s => s.id === subjectId ? { ...s, ...updates } : s));
+  };
+
+  const deleteSubject = async (subjectId) => {
+    await deleteDoc(doc(db, `schedules/${userId}/subjects`, subjectId));
+    setSubjects(subjects.filter(s => s.id !== subjectId));
+  };
+
+  return { subjects, loading, addSubject, updateSubject, deleteSubject };
+}
+```
 
 ### Schedule Validation
-- Check for time conflicts (same day, overlapping times)
-- Validate end time is after start time
-- Warn user of back-to-back classes
 
-### Weekly View Options
-- GridLayout for calendar-style view
-- RecyclerView with day headers for list view
-- Consider third-party libraries like MaterialCalendarView
+```javascript
+function validateSchedule(newSchedule, existingSchedules) {
+  for (const schedule of newSchedule.schedules) {
+    for (const existing of existingSchedules) {
+      for (const existingSlot of existing.schedules) {
+        if (schedule.dayOfWeek === existingSlot.dayOfWeek) {
+          // Check time overlap
+          if (timeOverlap(schedule, existingSlot)) {
+            return {
+              valid: false,
+              message: `Conflict with ${existing.subjectName} on ${getDayName(schedule.dayOfWeek)}`
+            };
+          }
+        }
+      }
+    }
+  }
+  return { valid: true };
+}
+
+function timeOverlap(slot1, slot2) {
+  const start1 = timeToMinutes(slot1.startTime);
+  const end1 = timeToMinutes(slot1.endTime);
+  const start2 = timeToMinutes(slot2.startTime);
+  const end2 = timeToMinutes(slot2.endTime);
+
+  return start1 < end2 && end1 > start2;
+}
+```
+
+### UI Considerations
+- Use HTML `<input type="time">` for time selection
+- Checkboxes for day selection (M, T, W, Th, F, S, Su)
+- Color picker for subject color coding
+- Toggle between Table View and Card View
+- Export to PDF or image functionality
 
 ## Dependencies Management
 
-Dependencies are managed via Gradle version catalog (`gradle/libs.versions.toml`).
+Dependencies are managed via npm and defined in `package.json`.
 
 **Current Core Dependencies:**
-- androidx.appcompat:1.7.1
-- material:1.13.0
-- androidx.activity:1.11.0
-- constraintlayout:2.2.1
+- `react`: ^19.2.0 - UI library
+- `react-dom`: ^19.2.0 - React DOM renderer
+- `firebase`: ^12.6.0 - Backend/database services
+- `tailwindcss`: ^4.1.17 - Utility-first CSS framework
+- `@tailwindcss/vite`: ^4.1.17 - Tailwind for Vite
+- `gsap`: ^3.13.0 - Animation library
+- `motion`: ^12.23.24 - Framer Motion for animations
+- `three`: ^0.181.1 - 3D graphics library
+- `lucide-react`: ^0.554.0 - Icon library
+
+**Dev Dependencies:**
+- `vite`: ^7.2.2 - Build tool
+- `@vitejs/plugin-react`: ^5.1.0 - React plugin for Vite
+- `eslint`: ^9.39.1 - Code linter
+- TypeScript types for React
+
+**Adding New Dependencies:**
+```bash
+# Production dependency
+npm install package-name
+
+# Dev dependency
+npm install -D package-name
+```
 
 **Future Dependencies to Consider:**
-- Room Database: `androidx.room:room-runtime`
-- Navigation Component: `androidx.navigation:navigation-fragment`
-- ViewModels/LiveData: `androidx.lifecycle:lifecycle-viewmodel`
-- RecyclerView: `androidx.recyclerview:recyclerview`
-- PDF Viewer: `com.github.barteksc:android-pdf-viewer`
+- `react-router-dom` - Client-side routing
+- `react-hook-form` - Form management
+- `react-pdf` - PDF viewer for documents
+- `date-fns` or `dayjs` - Date manipulation for scheduling
+- `zustand` or `redux` - State management (if needed)
+- `react-hot-toast` - Toast notifications
 
 ## Important Notes
 
-- **This is a STATIC APP** - No user authentication or profile management
-- No user login/registration system required
-- All content is read-only and publicly accessible
-- The app uses Java 11 compatibility
-- No ProGuard/R8 minification in release builds currently
-- AndroidX migration complete
-- Supports RTL layouts
-- Material Design 3 with day/night theme support
-- Edge-to-edge display with proper inset handling
-- **PORTRAIT MODE ONLY** - All activities must have `android:screenOrientation="portrait"` in AndroidManifest.xml
+- **Web Application** - Responsive design for desktop, tablet, and mobile
+- Firebase for backend services (optional authentication)
+- User data stored in Firestore (schedules, preferences)
+- Static content bundled with the app
+- PWA-ready (can be converted to Progressive Web App)
+- Modern ES6+ JavaScript/JSX
+- Vite for fast development and optimized production builds
 
 ## Current Development Status
 
 **Completed:**
-- Opening/splash screen with animations
-- Basic home dashboard structure
-- UI foundations with Material Design 3
+- Landing page with animated hero section
+- Feature cards showcase
+- Responsive navigation with mobile menu
+- Firebase integration setup
+- Basic UI foundations with Tailwind CSS
 
 **In Progress/TODO:**
-- Feature screens implementation (4 main cards are placeholders)
-- Subject scheduling system
-- Data persistence layer
-- Navigation framework
-- Form download functionality
-- Content population for university information
+- Subject scheduling system (Table & Card views)
+- Grade calculator feature
+- Academic resources pages
+- Campus information hub
+- Downloadable forms center
+- Student services section
+- Firebase authentication (optional)
+- Complete Firebase configuration
 
 ## File Locations Reference
 
-**Java Source:** `app/src/main/java/com/example/bulsuehandbook/`
-**Layouts:** `app/src/main/res/layout/`
-**Resources:** `app/src/main/res/values/`
-**Animations:** `app/src/main/res/anim/`
-**Assets:** `app/src/main/assets/` (to be created for static content)
-**Tests:** `app/src/test/` (unit) and `app/src/androidTest/` (instrumented)
+**Source Code:** `src/`
+**Components:** `src/components/` (reusable components)
+**Pages:** `src/pages/` (page components)
+**Firebase:** `src/firebase/firebase.js`
+**Styles:** `src/App.css`, `src/index.css`
+**Public Assets:** `public/` (static files)
+**APK Downloads:** `public/bulsuEHandBook.apk`
+**Configuration:** Root directory (`vite.config.js`, `package.json`, etc.)
 
-## Gradle Configuration
+## Vite Configuration
 
-Build files use Kotlin DSL (.kts):
-- **Root:** `build.gradle.kts` (minimal, just plugin declaration)
-- **App Module:** `app/build.gradle.kts` (main build configuration)
-- **Version Catalog:** `gradle/libs.versions.toml` (dependency versions)
+The project uses Vite for development and building:
 
-When adding dependencies, update the version catalog first, then reference in `app/build.gradle.kts` using `libs.libraryName` syntax.
+```javascript
+// vite.config.js
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
+
+export default defineConfig({
+  plugins: [react()],
+  server: {
+    port: 5173 // default dev server port
+  },
+  build: {
+    outDir: 'dist',
+    sourcemap: true // for debugging
+  }
+})
+```
+
+## Deployment
+
+**Build for production:**
+```bash
+npm run build
+```
+
+**Preview production build:**
+```bash
+npm run preview
+```
+
+**Deployment Options:**
+- **Firebase Hosting** (recommended for Firebase projects)
+- **Vercel** (easy deployment with Git integration)
+- **Netlify** (drag-and-drop or Git deployment)
+- **GitHub Pages** (free static hosting)
+- Any static file hosting service

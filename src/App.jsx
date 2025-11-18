@@ -1,73 +1,112 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import './App.css'
 import TextType from './TextType'
 import CardSwap, { Card } from './CardSwap'
-import TiltedCard from './TiltedCard'
-import { Home, Sparkles, BookOpen, FileText, Download, Mail } from 'lucide-react'
+import { Home, Sparkles, BookOpen, FileText, Download, Mail, Menu, X } from 'lucide-react'
+import { getDownloadCount, incrementDownloadCount } from './firebase/firebase'
 
 const featureCards = [
   {
-    title: 'My Schedule Builder',
+    title: 'Tools - My Schedule & Timetable Management',
     description:
-      'Plot every subject with fixed day, start time, end time, room, and teacher so the entire week is visible before classes start.',
-    tags: ['Subjects', 'Day & Time', 'Teacher Cards'],
+      'Build your weekly schedule with dual view modes: Table view for the entire week grid (8 AM - 8 PM) and Card view for organized day-by-day listings. Color-coded subjects with teachers and rooms.',
+    tags: ['Table View', 'Card View', 'Multi-Schedule'],
   },
   {
-    title: 'Static Handbook Library',
+    title: 'Grade Calculator - BulSU System',
     description:
-      'All handbook chapters, program regulations, and syllabi are packaged inside the APK for offline viewing.',
-    tags: ['PDF Viewer', 'Policies', 'Course Guides'],
+      'Calculate grades accurately using BulSU\'s official weighted system: Attendance (10%), Quizzes (30%), Projects (40%), Exams (20%). Converts to BulSU grade scale (1.00-5.00).',
+    tags: ['BulSU Grading', 'GWA', 'Pass/Fail'],
   },
   {
-    title: 'Campus Resources',
+    title: 'Academic Resources',
     description:
-      'Forms, academic calendar snapshots, and campus maps are bundled for easy download and print.',
-    tags: ['Registrar', 'Calendar', 'Maps'],
+      'Access complete course curriculum for all programs (BSIT, BSBA, BSE, BEED, BSIE, BIT), academic regulations, grading standards, and general provisions—all offline.',
+    tags: ['Curriculum', 'Regulations', 'Policies'],
   },
   {
-    title: 'Student Support Hub',
+    title: 'Campus Information Hub',
     description:
-      'Directory cards highlight departments, organizations, and helplines without needing live data.',
-    tags: ['Directory', 'Services', 'Contacts'],
+      'Complete department directory, faculty information for all colleges (CICS, CBA, COED, COE), student organizations (LSC, AIES, ASICS), and BulSU history, hymn, and march.',
+    tags: ['Departments', 'Faculty', 'Organizations'],
+  },
+  {
+    title: 'Downloadable Forms Center',
+    description:
+      'Access registrar forms (adding/changing, dropping), student affairs documents, academic calendar, and campus maps. All resources bundled for offline use.',
+    tags: ['Registrar', 'Forms', 'Calendar'],
+  },
+  {
+    title: 'Student Services',
+    description:
+      'Guidance and counseling services, student affairs information, university contacts, and academic awards info including Latin Honors and Gold Gear Awards.',
+    tags: ['Services', 'Guidance', 'Awards'],
   },
 ]
 
 const reactBitsCards = [
   {
-    title: 'Schedule Grid',
-    imageSrc: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="300"%3E%3Crect width="400" height="300" fill="%231b5e20"/%3E%3C/svg%3E',
+    title: 'My Schedule - Dual View Modes',
+    imageSrc: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="300"%3E%3Crect width="400" height="300" fill="%231b5e20"/%3E%3Ctext x="50%25" y="50%25" fill="white" font-size="24" text-anchor="middle" dy=".3em"%3ETable %26 Card View%3C/text%3E%3C/svg%3E',
     description:
-      'Build your weekly schedule with color-coded subjects, fixed day and time slots, room assignments, and teacher information for the entire semester.',
+      'Create multiple schedules for different semesters. Toggle between Table View (weekly grid timetable 8 AM-8 PM) and Card View (day-by-day listing). Add unlimited subjects with day, start/end time, location, and teacher. Automatic time conflict detection.',
   },
   {
-    title: 'Teacher & Room Notes',
-    imageSrc: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="300"%3E%3Crect width="400" height="300" fill="%232e7d32"/%3E%3C/svg%3E',
+    title: 'Grade Calculator - BulSU Compliance',
+    imageSrc: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="300"%3E%3Crect width="400" height="300" fill="%232e7d32"/%3E%3Ctext x="50%25" y="50%25" fill="white" font-size="24" text-anchor="middle" dy=".3em"%3EGWA Calculator%3C/text%3E%3C/svg%3E',
     description:
-      'Access instructor names, consultation hours, and room numbers for every subject block. Keep all your class details organized in one place.',
+      'Input scores for Attendance & Recitation (10%), Quizzes & Written Works (30%), Activities & Projects (40%), and Term Examination (20%). Get your final percentage, BulSU grade (1.00-5.00), GWA equivalent, and pass/fail status. Detailed component breakdown included.',
   },
   {
-    title: 'Download Center',
-    imageSrc: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="300"%3E%3Crect width="400" height="300" fill="%23388e3c"/%3E%3C/svg%3E',
+    title: 'Campus Resources & Directory',
+    imageSrc: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="300"%3E%3Crect width="400" height="300" fill="%23388e3c"/%3E%3Ctext x="50%25" y="50%25" fill="white" font-size="24" text-anchor="middle" dy=".3em"%3ECampus Info%3C/text%3E%3C/svg%3E',
     description:
-      'Download registrar forms, request slips, campus maps, and essential documents. All resources are bundled in the APK for offline access.',
+      'Complete department directory for all colleges (CICS, CBA, COED, COE, BIT), faculty information, student organizations directory (LSC, AIES, ASICS, OMG, Lingua Franca), downloadable forms, academic calendar, campus maps, and BulSU identity (hymn, march, history).',
+  },
+  {
+    title: 'Academic Information Center',
+    imageSrc: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="300"%3E%3Crect width="400" height="300" fill="%2343a047"/%3E%3Ctext x="50%25" y="50%25" fill="white" font-size="24" text-anchor="middle" dy=".3em"%3EAcademic Hub%3C/text%3E%3C/svg%3E',
+    description:
+      'Access course curriculum for all programs (BSIT, BSBA, BSE, BEED, BSIE, BIT with specializations), academic regulations including grading system and standards, attendance policies, examination procedures, general provisions with vision and mission, and student rights and responsibilities.',
+  },
+  {
+    title: 'Student Services & Awards',
+    imageSrc: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="300"%3E%3Crect width="400" height="300" fill="%234caf50"/%3E%3Ctext x="50%25" y="50%25" fill="white" font-size="24" text-anchor="middle" dy=".3em"%3EStudent Services%3C/text%3E%3C/svg%3E',
+    description:
+      'Student affairs information, guidance and counseling services, Latin Honors requirements and criteria, Gold Gear Awards for engineering excellence, graduation awards categories, university contacts, and downloadable forms and templates for various academic processes.',
   },
 ]
 
 const quickAccess = [
   {
+    title: 'My Schedule Builder',
+    detail: 'Build your complete weekly timetable with Table and Card views. Add subjects with day, time, room, and teacher. Create multiple schedules for different semesters.',
+    badge: 'Schedule Tools',
+  },
+  {
+    title: 'Grade Calculator',
+    detail: 'Calculate your grades using BulSU\'s official weighted system. Get instant GWA conversion, detailed breakdown, and pass/fail status based on BulSU standards.',
+    badge: 'Academic Tools',
+  },
+  {
     title: 'Downloadable Forms',
-    detail: 'Adding/Changing, Dropping, Registrar requests—ready for offline use.',
+    detail: 'Adding/Changing forms, Dropping forms, registrar requests, student affairs documents—all bundled for offline access and printing.',
     badge: 'Registrar Ready',
   },
   {
-    title: 'Campus Essentials',
-    detail: 'Maps, academic calendar, and contact directory for quick navigation.',
-    badge: 'Wayfinding',
+    title: 'Campus Directory',
+    detail: 'Complete faculty directory for all colleges, department information, student organizations list (LSC, AIES, ASICS), and university contacts.',
+    badge: 'Information Hub',
   },
   {
-    title: 'Knowledge Base',
-    detail: 'Histories, hymns, and university highlights for every scholar.',
-    badge: 'Culture',
+    title: 'Academic Resources',
+    detail: 'Course curriculum for all programs (BSIT, BSBA, BSE, BEED, BSIE, BIT), academic regulations, grading standards, examination procedures.',
+    badge: 'Knowledge Base',
+  },
+  {
+    title: 'BulSU Identity',
+    detail: 'University history, BulSU Hymn with lyrics, BulSU March, vision and mission statements, core values, and institutional philosophy.',
+    badge: 'Culture & Heritage',
   },
 ]
 
@@ -90,6 +129,57 @@ const downloadSteps = [
 ]
 
 function App() {
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const [downloadCount, setDownloadCount] = useState(0)
+  const [selectedCard, setSelectedCard] = useState(null)
+  const [isModalOpen, setIsModalOpen] = useState(false)
+
+  const toggleMobileMenu = () => {
+    setIsMobileMenuOpen(!isMobileMenuOpen)
+  }
+
+  const closeMobileMenu = () => {
+    setIsMobileMenuOpen(false)
+  }
+
+  const openModal = (card) => {
+    setSelectedCard(card)
+    setIsModalOpen(true)
+  }
+
+  const closeModal = () => {
+    setIsModalOpen(false)
+    setTimeout(() => setSelectedCard(null), 300) // Wait for animation to complete
+  }
+
+  const handleDownload = async () => {
+    await incrementDownloadCount()
+    // Refresh the count after incrementing
+    const newCount = await getDownloadCount()
+    setDownloadCount(newCount)
+  }
+
+  // Fetch download count on mount
+  useEffect(() => {
+    const fetchDownloadCount = async () => {
+      const count = await getDownloadCount()
+      setDownloadCount(count)
+    }
+    fetchDownloadCount()
+  }, [])
+
+  // Prevent body scroll when mobile menu or modal is open
+  useEffect(() => {
+    if (isMobileMenuOpen || isModalOpen) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = ''
+    }
+    return () => {
+      document.body.style.overflow = ''
+    }
+  }, [isMobileMenuOpen, isModalOpen])
+
   useEffect(() => {
     const animatedElements = document.querySelectorAll('[data-animate]')
     const observer = new IntersectionObserver(
@@ -158,6 +248,52 @@ function App() {
 
   return (
     <div className="app-shell">
+      {/* Mobile Menu Button */}
+      <button className="mobile-menu-toggle" onClick={toggleMobileMenu} aria-label="Toggle menu">
+        <Menu className="mobile-menu-toggle__icon" />
+      </button>
+
+      {/* Mobile Side Menu */}
+      <div className={`mobile-side-menu ${isMobileMenuOpen ? 'mobile-side-menu--open' : ''}`}>
+        <div className="mobile-side-menu__header">
+          <h2>Menu</h2>
+          <button className="mobile-side-menu__close" onClick={closeMobileMenu} aria-label="Close menu">
+            <X />
+          </button>
+        </div>
+        <nav className="mobile-side-menu__nav">
+          <a href="#top" className="mobile-side-menu__link" onClick={closeMobileMenu}>
+            <Home className="mobile-side-menu__icon" />
+            <span>Home</span>
+          </a>
+          <a href="#features" className="mobile-side-menu__link" onClick={closeMobileMenu}>
+            <Sparkles className="mobile-side-menu__icon" />
+            <span>Features</span>
+          </a>
+          <a href="#reactbits" className="mobile-side-menu__link" onClick={closeMobileMenu}>
+            <BookOpen className="mobile-side-menu__icon" />
+            <span>Handbook</span>
+          </a>
+          <a href="#services" className="mobile-side-menu__link" onClick={closeMobileMenu}>
+            <FileText className="mobile-side-menu__icon" />
+            <span>Services</span>
+          </a>
+          <a href="#download" className="mobile-side-menu__link" onClick={closeMobileMenu}>
+            <Download className="mobile-side-menu__icon" />
+            <span>Download</span>
+          </a>
+          <a href="#contact" className="mobile-side-menu__link" onClick={closeMobileMenu}>
+            <Mail className="mobile-side-menu__icon" />
+            <span>Contact</span>
+          </a>
+        </nav>
+      </div>
+
+      {/* Overlay */}
+      {isMobileMenuOpen && (
+        <div className="mobile-menu-overlay" onClick={closeMobileMenu}></div>
+      )}
+
       <header className="hero" id="top">
         <div className="hero__content">
           <p className="hero__eyebrow">BulSU Bustos Campus · Official Companion</p>
@@ -174,12 +310,12 @@ function App() {
             />
           </div>
           <p className="hero__subtitle">
-            BulSU E-Handbook is a static Android companion. Install it once to read
-            policies, grab forms, and use the My Schedule feature that lets you build your
-            entire timetable inside the app.
+            BulSU E-Handbook is your complete campus companion for Bulacan State University - Bustos Campus.
+            Access curriculum, policies, and resources offline. Build your schedule with dual view modes.
+            Calculate grades with BulSU's official system. Everything you need, no internet required.
           </p>
           <div className="cta-group">
-            <a className="btn btn--primary" href="/BulSU-E-Handbook.apk" download>
+            <a className="btn btn--primary" href="/bulsuEHandBook.apk" download onClick={handleDownload}>
               Download APK
             </a>
             <a className="btn btn--secondary" href="#download">
@@ -188,43 +324,47 @@ function App() {
           </div>
           <ul className="hero__stats">
             <li>
-              <span>4</span>
-              Core navigation hubs
+              <span>{downloadCount.toLocaleString()}</span>
+              Total downloads
             </li>
             <li>
-              <span>20+</span>
-              Handbook sections
+              <span>5</span>
+              Core feature modules
+            </li>
+            <li>
+              <span>12+</span>
+              Academic programs
             </li>
             <li>
               <span>100%</span>
-              Offline ready content
+              Offline functionality
             </li>
           </ul>
         </div>
-        <div className="hero__preview" aria-hidden="true">
+        <div className="hero__preview hero__preview--desktop" aria-hidden="true">
           <div className="hero__cards">
             <CardSwap cardDistance={60} verticalDistance={70} delay={5000} pauseOnHover={false}>
               <Card>
-                <img src="https://placehold.co/320x180?text=My+Schedule" alt="My Schedule placeholder" />
-                <h3>Schedule Builder</h3>
-                <p>Stack fixed subjects by day, time, room, and teacher before the semester starts.</p>
+                <img src="https://placehold.co/320x180?text=My+Schedule" alt="My Schedule with dual views" />
+                <h3>My Schedule</h3>
+                <p>Dual view modes: Table grid (8 AM-8 PM) and Card view. Create multiple schedules with time conflict detection.</p>
               </Card>
               <Card>
-                <img src="https://placehold.co/320x180/1b5e20/ffffff?text=Forms+Bundle" alt="Download forms placeholder" />
-                <h3>Download Center</h3>
-                <p>Static registrar forms, campus maps, and contacts packaged in the APK.</p>
+                <img src="https://placehold.co/320x180/1b5e20/ffffff?text=Grade+Calculator" alt="BulSU Grade Calculator" />
+                <h3>Grade Calculator</h3>
+                <p>BulSU-compliant grading system with weighted components. Get GWA, grade scale, and pass/fail status instantly.</p>
               </Card>
               <Card>
-                <img src="https://placehold.co/320x180/0f1f13/8bc34a?text=Teacher+Notes" alt="Teacher notes placeholder" />
-                <h3>Teacher Notes</h3>
-                <p>Keep faculty names, consultation hours, and room reminders offline.</p>
+                <img src="https://placehold.co/320x180/0f1f13/8bc34a?text=Campus+Resources" alt="Campus directory and resources" />
+                <h3>Campus Resources</h3>
+                <p>Complete directory for all colleges, faculty, organizations, forms, curriculum, and BulSU identity.</p>
               </Card>
             </CardSwap>
           </div>
         </div>
       </header>
 
-      <nav className="nav-bar">
+      <nav className="nav-bar nav-bar--desktop">
         <div className="nav-bar__container">
           <a href="#top" className="nav-card">
             <Home className="nav-card__icon" />
@@ -260,8 +400,8 @@ function App() {
         </div>
         <header className="section__header">
           <p className="section__eyebrow">Designed for BulSU Bustos Campus</p>
-          <h2>Tech-themed experience that mirrors the Android app</h2>
-          <p>Every tile below highlights static bundles already packaged inside the APK.</p>
+          <h2>Comprehensive features for your academic journey</h2>
+          <p>Schedule management, grade calculation, campus resources, and academic information—all accessible offline once installed.</p>
         </header>
         <div className="feature-grid" data-animate="grid">
           {featureCards.map((card, index) => (
@@ -271,15 +411,20 @@ function App() {
               data-animate="card"
               data-tilt
               style={{ '--stagger': index }}
+              onClick={() => openModal(card)}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault()
+                  openModal(card)
+                }
+              }}
             >
               <span className="feature-card__chip">{card.title.split(' ')[0]}</span>
               <h3>{card.title}</h3>
               <p>{card.description}</p>
-              <ul>
-                {card.tags.map((tag) => (
-                  <li key={tag}>{tag}</li>
-                ))}
-              </ul>
+              <div className="feature-card__hint">Click to view details</div>
             </article>
           ))}
         </div>
@@ -291,42 +436,26 @@ function App() {
           <span className="section__mesh section__mesh--dots" />
         </div>
         <header className="section__header">
-          <p className="section__eyebrow">BulSU Bustos Handbook features</p>
-          <h2>Essential tools for your academic journey</h2>
+          <p className="section__eyebrow">BulSU Bustos E-Handbook Core Features</p>
+          <h2>Powerful tools designed for students</h2>
           <p>
-            The BulSU E-Handbook provides everything you need for a successful semester. From
-            building your schedule to accessing campus resources, all features work offline once
-            the app is installed.
+            From dual-view schedule management to BulSU-compliant grade calculation, comprehensive campus directories
+            to complete academic resources—everything works offline once installed. Built with Material Design 3
+            and tech-themed aesthetics perfect for IT students.
           </p>
         </header>
         <div className="bits-grid" data-animate="grid">
           {reactBitsCards.map((card, index) => (
-            <div
+            <article
+              className="bits-card-simple"
               key={card.title}
               data-animate="card"
+              data-tilt
               style={{ '--stagger': index }}
             >
-              <TiltedCard
-                imageSrc={card.imageSrc}
-                altText={card.title}
-                captionText=""
-                containerHeight="auto"
-                containerWidth="100%"
-                imageHeight="100%"
-                imageWidth="100%"
-                rotateAmplitude={12}
-                scaleOnHover={1.05}
-                showMobileWarning={false}
-                showTooltip={false}
-                displayOverlayContent={true}
-                overlayContent={
-                  <div className="tilted-card-content">
-                    <h3 className="tilted-card-title">{card.title}</h3>
-                    <p className="tilted-card-description">{card.description}</p>
-                  </div>
-                }
-              />
-            </div>
+              <h3>{card.title}</h3>
+              <p>{card.description}</p>
+            </article>
           ))}
         </div>
       </section>
@@ -335,6 +464,18 @@ function App() {
         <div className="section__decor" aria-hidden="true">
           <span className="section__orb section__orb--amber" />
           <span className="section__stripe" />
+        </div>
+        <div className="quick-access__header" data-animate="content">
+          <h2>Everything you need from day one</h2>
+          <p>
+            BulSU E-Handbook is your complete campus companion providing schedule building, grade calculation,
+            curriculum access, faculty directories, downloadable forms, and BulSU identity resources.
+            All features work offline—no internet required after installation. Perfect for students across
+            all programs: BSIT, BSBA, BSE, BEED, BSIE, and BIT specializations.
+          </p>
+          <a className="link-arrow" href="#download">
+            Download APK now
+          </a>
         </div>
         <div className="quick-access__grid" data-animate="grid">
           {quickAccess.map((item, index) => (
@@ -350,17 +491,6 @@ function App() {
               <p>{item.detail}</p>
             </article>
           ))}
-        </div>
-        <div className="quick-access__copy" data-animate="content">
-          <h2>Everything you need from day one</h2>
-          <p>
-            The BulSU E-Handbook keeps your go-to campus resources one tap away—no signal
-            required once installed. The Android app bundles forms, directories, schedule
-            templates, and knowledge bases so you can build your semester offline.
-          </p>
-          <a className="link-arrow" href="#download">
-            See how to install
-          </a>
         </div>
       </section>
 
@@ -390,7 +520,7 @@ function App() {
           ))}
         </div>
         <div className="download__cta" data-animate="content">
-          <a className="btn btn--primary" href="/BulSU-E-Handbook.apk" download>
+          <a className="btn btn--primary" href="/bulsuEHandBook.apk" download onClick={handleDownload}>
             Download latest APK
           </a>
           <p>
@@ -423,6 +553,39 @@ function App() {
         <p>BulSU E-Handbook · Bustos Campus · Built with Material Design 3</p>
         <a href="#top">Back to top</a>
       </footer>
+
+      {/* Feature Card Modal */}
+      {isModalOpen && selectedCard && (
+        <div className={`modal-overlay ${isModalOpen ? 'modal-overlay--open' : ''}`} onClick={closeModal}>
+          <div className={`modal-content ${isModalOpen ? 'modal-content--open' : ''}`} onClick={(e) => e.stopPropagation()}>
+            <button className="modal-close" onClick={closeModal} aria-label="Close modal">
+              <X />
+            </button>
+            <div className="modal-header">
+              <span className="modal-chip">{selectedCard.title.split(' ')[0]}</span>
+              <h2>{selectedCard.title}</h2>
+            </div>
+            <div className="modal-body">
+              <p className="modal-description">{selectedCard.description}</p>
+              {selectedCard.tags && selectedCard.tags.length > 0 && (
+                <div className="modal-tags">
+                  <h3>Key Features:</h3>
+                  <ul>
+                    {selectedCard.tags.map((tag, index) => (
+                      <li key={index}>{tag}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              <div className="modal-cta">
+                <a className="btn btn--primary" href="/bulsuEHandBook.apk" download onClick={handleDownload}>
+                  Download APK to Access
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
