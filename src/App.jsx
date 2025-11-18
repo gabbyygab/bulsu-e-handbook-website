@@ -392,17 +392,14 @@ function App() {
           <div className="hero__cards">
             <CardSwap cardDistance={60} verticalDistance={70} delay={5000} pauseOnHover={false}>
               <Card>
-                <img src="https://placehold.co/320x180?text=My+Schedule" alt="My Schedule with dual views" />
                 <h3>My Schedule</h3>
                 <p>Dual view modes: Table grid (8 AM-8 PM) and Card view. Create multiple schedules with time conflict detection.</p>
               </Card>
               <Card>
-                <img src="https://placehold.co/320x180/1b5e20/ffffff?text=Grade+Calculator" alt="BulSU Grade Calculator" />
                 <h3>Grade Calculator</h3>
                 <p>BulSU-compliant grading system with weighted components. Get GWA, grade scale, and pass/fail status instantly.</p>
               </Card>
               <Card>
-                <img src="https://placehold.co/320x180/2e7d32/ffffff?text=Campus+Resources" alt="Campus directory and resources" />
                 <h3>Campus Resources</h3>
                 <p>Complete directory for all colleges, faculty, organizations, forms, curriculum, and BulSU identity.</p>
               </Card>
