@@ -49,7 +49,10 @@ export const incrementDownloadCount = async () => {
       // Initialize with count 1 if document doesn't exist
       await setDoc(docRef, { count: 1 });
     }
+    return true; // Success
   } catch (error) {
     console.error("Error incrementing download count:", error);
+    // Don't throw - allow the download to proceed even if tracking fails
+    return false; // Failure, but don't block the download
   }
 };

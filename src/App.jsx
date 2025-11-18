@@ -2,8 +2,12 @@ import { useEffect, useState } from 'react'
 import './App.css'
 import TextType from './TextType'
 import CardSwap, { Card } from './CardSwap'
-import { Home, Sparkles, BookOpen, FileText, Download, Mail, Menu, X } from 'lucide-react'
+import { Home, Sparkles, BookOpen, FileText, Download, Mail, Menu, X, Loader2 } from 'lucide-react'
 import { getDownloadCount, incrementDownloadCount } from './firebase/firebase'
+
+// MediaFire APK Download URL
+// Direct download link for the APK from MediaFire
+const APK_DOWNLOAD_URL = 'https://www.mediafire.com/file/wvqgrn0cykwq2r6/bulsuEHandBook.apk/file'
 
 const featureCards = [
   {
@@ -133,6 +137,7 @@ function App() {
   const [downloadCount, setDownloadCount] = useState(0)
   const [selectedCard, setSelectedCard] = useState(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const [isDownloading, setIsDownloading] = useState(false)
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen)
@@ -152,11 +157,46 @@ function App() {
     setTimeout(() => setSelectedCard(null), 300) // Wait for animation to complete
   }
 
-  const handleDownload = async () => {
-    await incrementDownloadCount()
-    // Refresh the count after incrementing
-    const newCount = await getDownloadCount()
-    setDownloadCount(newCount)
+  const handleDownload = async (e) => {
+    // Prevent default navigation and stop event propagation
+    e.preventDefault()
+    e.stopPropagation()
+    
+    // Don't allow multiple simultaneous downloads
+    if (isDownloading) return false
+    
+    // Set loading state
+    setIsDownloading(true)
+    
+    try {
+      // Track download count before opening MediaFire
+      const trackingSuccess = await incrementDownloadCount()
+      
+      if (trackingSuccess) {
+        // Refresh the count after incrementing (don't wait for it)
+        getDownloadCount().then((newCount) => {
+          setDownloadCount(newCount)
+        }).catch((error) => {
+          console.error('Error fetching download count:', error)
+          // Don't block the download if count fetch fails
+        })
+      }
+      
+      // Open MediaFire in a new tab ONLY - never redirect current page
+      // This prevents navigation away from the site
+      window.open(APK_DOWNLOAD_URL, '_blank', 'noopener,noreferrer')
+      
+      // Keep spinner visible for a short time to show feedback
+      setTimeout(() => {
+        setIsDownloading(false)
+      }, 2000)
+    } catch (error) {
+      console.error('Error in download process:', error)
+      setIsDownloading(false)
+    }
+    
+    // Return false to prevent any default behavior
+    return false
   }
 
   // Fetch download count on mount
@@ -315,8 +355,15 @@ function App() {
             Calculate grades with BulSU's official system. Everything you need, no internet required.
           </p>
           <div className="cta-group">
-            <a className="btn btn--primary" href="/bulsuEHandBook.apk" download onClick={handleDownload}>
-              Download APK
+            <a className={`btn btn--primary ${isDownloading ? 'btn--loading' : ''}`} href="javascript:void(0)" onClick={handleDownload} role="button" onMouseDown={(e) => e.preventDefault()} disabled={isDownloading}>
+              {isDownloading ? (
+                <>
+                  <Loader2 className="btn__spinner" />
+                  <span>Downloading...</span>
+                </>
+              ) : (
+                'Download APK'
+              )}
             </a>
             <a className="btn btn--secondary" href="#download">
               View Install Steps
@@ -520,8 +567,15 @@ function App() {
           ))}
         </div>
         <div className="download__cta" data-animate="content">
-          <a className="btn btn--primary" href="/bulsuEHandBook.apk" download onClick={handleDownload}>
-            Download latest APK
+          <a className={`btn btn--primary ${isDownloading ? 'btn--loading' : ''}`} href="javascript:void(0)" onClick={handleDownload} role="button" onMouseDown={(e) => e.preventDefault()} disabled={isDownloading}>
+            {isDownloading ? (
+              <>
+                <Loader2 className="btn__spinner" />
+                <span>Downloading...</span>
+              </>
+            ) : (
+              'Download latest APK'
+            )}
           </a>
           <p>
             Need updates? <a href="mailto:bulsu.handbook@edu.ph">Contact the dev team</a>
@@ -578,8 +632,15 @@ function App() {
                 </div>
               )}
               <div className="modal-cta">
-                <a className="btn btn--primary" href="/bulsuEHandBook.apk" download onClick={handleDownload}>
-                  Download APK to Access
+                <a className={`btn btn--primary ${isDownloading ? 'btn--loading' : ''}`} href="javascript:void(0)" onClick={handleDownload} role="button" onMouseDown={(e) => e.preventDefault()} disabled={isDownloading}>
+                  {isDownloading ? (
+                    <>
+                      <Loader2 className="btn__spinner" />
+                      <span>Downloading...</span>
+                    </>
+                  ) : (
+                    'Download APK to Access'
+                  )}
                 </a>
               </div>
             </div>
