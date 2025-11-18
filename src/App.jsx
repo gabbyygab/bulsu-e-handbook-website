@@ -402,7 +402,7 @@ function App() {
                 <p>BulSU-compliant grading system with weighted components. Get GWA, grade scale, and pass/fail status instantly.</p>
               </Card>
               <Card>
-                <img src="https://placehold.co/320x180/0f1f13/8bc34a?text=Campus+Resources" alt="Campus directory and resources" />
+                <img src="https://placehold.co/320x180/2e7d32/ffffff?text=Campus+Resources" alt="Campus directory and resources" />
                 <h3>Campus Resources</h3>
                 <p>Complete directory for all colleges, faculty, organizations, forms, curriculum, and BulSU identity.</p>
               </Card>
