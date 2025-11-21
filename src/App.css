@@ -276,9 +276,136 @@
   top: 0;
   right: 0;
   width: 100%;
-  transition: transform 700ms cubic-bezier(0.22, 1, 0.36, 1),
-    opacity 400ms ease, filter 400ms ease;
   filter: drop-shadow(0 30px 60px rgba(0, 0, 0, 0.55));
+  transition: transform 850ms cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 400ms ease, 
+    z-index 850ms step-end;
+  transform-style: preserve-3d;
+  will-change: transform, opacity, z-index;
+}
+
+/* Position cards based on their index - CSS will handle the initial positioning */
+.card-swap__item:nth-child(1) {
+  transform: translateY(calc(0 * var(--vertical-distance, 60px))) 
+             translateZ(calc(0 * -1 * var(--card-distance, 50px))) 
+             scale(1);
+  opacity: 1;
+  z-index: 3;
+  animation: cardRotate1 var(--animation-delay, 4000ms) infinite var(--pause-on-hover, running);
+}
+
+.card-swap__item:nth-child(2) {
+  transform: translateY(calc(1 * var(--vertical-distance, 60px))) 
+             translateZ(calc(1 * -1 * var(--card-distance, 50px))) 
+             scale(0.95);
+  opacity: 0.82;
+  z-index: 2;
+  animation: cardRotate2 var(--animation-delay, 4000ms) infinite var(--pause-on-hover, running);
+}
+
+.card-swap__item:nth-child(3) {
+  transform: translateY(calc(2 * var(--vertical-distance, 60px))) 
+             translateZ(calc(2 * -1 * var(--card-distance, 50px))) 
+             scale(0.9);
+  opacity: 0.64;
+  z-index: 1;
+  animation: cardRotate3 var(--animation-delay, 4000ms) infinite var(--pause-on-hover, running);
+}
+
+.card-swap__item:nth-child(n+4) {
+  opacity: 0;
+  z-index: 0;
+}
+
+/* Card rotation animations */
+@keyframes cardRotate1 {
+  0%, 33.33% {
+    transform: translateY(0px) translateZ(0px) scale(1);
+    opacity: 1;
+    z-index: 3;
+  }
+  33.34%, 66.66% {
+    transform: translateY(calc(2 * var(--vertical-distance, 60px))) 
+               translateZ(calc(2 * -1 * var(--card-distance, 50px))) 
+               scale(0.9);
+    opacity: 0.64;
+    z-index: 1;
+  }
+  66.67%, 100% {
+    transform: translateY(calc(1 * var(--vertical-distance, 60px))) 
+               translateZ(calc(1 * -1 * var(--card-distance, 50px))) 
+               scale(0.95);
+    opacity: 0.82;
+    z-index: 2;
+  }
+}
+
+@keyframes cardRotate2 {
+  0%, 33.33% {
+    transform: translateY(calc(1 * var(--vertical-distance, 60px))) 
+               translateZ(calc(1 * -1 * var(--card-distance, 50px))) 
+               scale(0.95);
+    opacity: 0.82;
+    z-index: 2;
+  }
+  33.34%, 66.66% {
+    transform: translateY(0px) translateZ(0px) scale(1);
+    opacity: 1;
+    z-index: 3;
+  }
+  66.67%, 100% {
+    transform: translateY(calc(2 * var(--vertical-distance, 60px))) 
+               translateZ(calc(2 * -1 * var(--card-distance, 50px))) 
+               scale(0.9);
+    opacity: 0.64;
+    z-index: 1;
+  }
+}
+
+@keyframes cardRotate3 {
+  0%, 33.33% {
+    transform: translateY(calc(2 * var(--vertical-distance, 60px))) 
+               translateZ(calc(2 * -1 * var(--card-distance, 50px))) 
+               scale(0.9);
+    opacity: 0.64;
+    z-index: 1;
+  }
+  33.34%, 66.66% {
+    transform: translateY(calc(1 * var(--vertical-distance, 60px))) 
+               translateZ(calc(1 * -1 * var(--card-distance, 50px))) 
+               scale(0.95);
+    opacity: 0.82;
+    z-index: 2;
+  }
+  66.67%, 100% {
+    transform: translateY(0px) translateZ(0px) scale(1);
+    opacity: 1;
+    z-index: 3;
+  }
+}
+
+/* Pause animation on hover for desktop */
+@media (hover: hover) {
+  .card-swap:hover .card-swap__item {
+    animation-play-state: paused;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .card-swap__item {
+    animation: none !important;
+  }
+  
+  .card-swap__item:nth-child(1) {
+    transform: translateY(0) translateZ(0) scale(1);
+    opacity: 1;
+    z-index: 3;
+  }
+  
+  .card-swap__item:nth-child(n+2) {
+    opacity: 0;
+  }
 }
 
 .card-swap__card {
@@ -397,21 +524,121 @@
   align-items: center;
   gap: 0.35rem;
   color: var(--accent-lime);
+  position: relative;
+  min-height: 1.5em;
+}
+
+.text-type__phrase {
+  position: absolute;
+  left: 0;
+  top: 0;
+  display: inline-flex;
+  align-items: center;
+  opacity: 0;
+  animation: phraseFadeInOut var(--phrase-duration, 3000ms) var(--delay, 0ms) infinite;
+  will-change: opacity;
+}
+
+.text-type__phrase:first-child {
+  position: relative;
 }
 
 .text-type__content {
   letter-spacing: 0.02em;
+  display: inline-block;
+  position: relative;
+}
+
+/* CSS typing effect using ::after pseudo-element */
+.text-type__content::after {
+  content: var(--phrase, '');
+  display: inline-block;
+  width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  animation: 
+    typing var(--typing-time, 1000ms) steps(var(--chars, 1), end),
+    pause var(--pause-time, 1200ms) linear var(--typing-time, 1000ms),
+    deleting var(--deleting-time, 500ms) steps(var(--chars, 1), end) calc(var(--typing-time, 1000ms) + var(--pause-time, 1200ms));
+  animation-fill-mode: forwards;
+}
+
+@keyframes typing {
+  from {
+    width: 0;
+  }
+  to {
+    width: 100%;
+  }
+}
+
+@keyframes pause {
+  from, to {
+    width: 100%;
+  }
+}
+
+@keyframes deleting {
+  from {
+    width: 100%;
+  }
+  to {
+    width: 0;
+  }
+}
+
+@keyframes phraseFadeInOut {
+  0%, 10% {
+    opacity: 0;
+  }
+  15%, 85% {
+    opacity: 1;
+  }
+  90%, 100% {
+    opacity: 0;
+  }
 }
 
 .text-type__cursor {
   font-weight: 700;
   color: #fff;
   animation: blink 1s steps(2, start) infinite;
+  display: inline-block;
+  margin-left: 2px;
 }
 
 @keyframes blink {
-  to {
-    visibility: hidden;
+  0%, 49% {
+    opacity: 1;
+  }
+  50%, 100% {
+    opacity: 0;
+  }
+}
+
+/* Reduced motion support - show first phrase only */
+@media (prefers-reduced-motion: reduce) {
+  .text-type__content::after {
+    animation: none !important;
+    width: 100%;
+  }
+  
+  .text-type__cursor {
+    animation: none !important;
+    opacity: 1;
+  }
+  
+  .text-type__phrase {
+    animation: none !important;
+  }
+  
+  .text-type__phrase:first-child {
+    opacity: 1;
+    position: relative;
+  }
+  
+  .text-type__phrase:not(:first-child) {
+    display: none;
   }
 }
 
@@ -523,18 +750,60 @@
   background: linear-gradient(120deg, rgba(11, 18, 12, 0.92) 25%, rgba(15, 26, 17, 0.9) 100%);
 }
 
-[data-animate] {
-  opacity: 0;
-  transform: translateY(40px) scale(0.98);
-  filter: blur(8px);
-  transition: opacity 700ms ease, transform 700ms ease, filter 700ms ease;
-  transition-delay: calc(var(--stagger, 0) * 70ms);
+/* CSS-based scroll animations using @supports and scroll-driven animations */
+@supports (animation-timeline: scroll()) {
+  [data-animate] {
+    opacity: 0;
+    transform: translateY(40px) scale(0.98);
+    filter: blur(8px);
+    animation: fadeInUp 0.7s ease forwards;
+    animation-delay: calc(var(--stagger, 0) * 70ms);
+    animation-timeline: view();
+    animation-range: entry 20% cover 40%;
+  }
 }
 
-[data-animate].is-visible {
-  opacity: 1;
-  transform: translateY(0) scale(1);
-  filter: blur(0);
+/* Fallback for browsers without scroll-driven animations support */
+@supports not (animation-timeline: scroll()) {
+  [data-animate] {
+    opacity: 0;
+    transform: translateY(40px) scale(0.98);
+    filter: blur(8px);
+    transition: opacity 700ms ease, transform 700ms ease, filter 700ms ease;
+    transition-delay: calc(var(--stagger, 0) * 70ms);
+  }
+
+  /* Use Intersection Observer polyfill via CSS - elements start visible after a small delay */
+  @media (prefers-reduced-motion: no-preference) {
+    [data-animate] {
+      animation: fadeInUp 0.7s ease forwards;
+      animation-delay: calc(var(--stagger, 0) * 70ms + 0.1s);
+    }
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(40px) scale(0.98);
+    filter: blur(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  [data-animate] {
+    opacity: 1;
+    transform: none;
+    filter: none;
+    animation: none;
+    transition: none;
+  }
 }
 
 .section__header {
@@ -1272,14 +1541,37 @@
 }
 
 [data-tilt] {
-  --tilt-rotate-x: 0deg;
-  --tilt-rotate-y: 0deg;
-  --tilt-elevation: 0px;
   --hover-raise: 0px;
   transform-style: preserve-3d;
   will-change: transform;
-  transform: perspective(1200px) rotateX(var(--tilt-rotate-x)) rotateY(var(--tilt-rotate-y))
-    translateY(calc(var(--hover-raise) + var(--tilt-elevation)));
+  transform: perspective(1200px) translateY(var(--hover-raise));
+  transition: transform 300ms cubic-bezier(0.23, 1, 0.32, 1), box-shadow 300ms ease;
+}
+
+/* CSS-only tilt effect on hover - optimized for mobile */
+@media (hover: hover) and (pointer: fine) {
+  [data-tilt]:hover {
+    transform: perspective(1200px) rotateX(-2deg) rotateY(2deg) translateY(calc(var(--hover-raise) - 2px));
+  }
+  
+  [data-tilt]:hover:active {
+    transform: perspective(1200px) rotateX(0deg) rotateY(0deg) translateY(var(--hover-raise));
+  }
+}
+
+/* Touch devices - simpler transform without tilt */
+@media (hover: none) {
+  [data-tilt]:active {
+    transform: perspective(1200px) translateY(calc(var(--hover-raise) - 2px));
+  }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  [data-tilt] {
+    transform: none;
+    transition: none;
+  }
 }
 
 [data-tilt]:focus-visible {
@@ -2267,6 +2559,62 @@
 
   .mobile-side-menu__header {
     padding: 1rem 1.25rem;
+  }
+}
+
+/* Mobile performance optimizations for CSS animations */
+@media (max-width: 768px) {
+  /* Reduce blur effects on mobile for better performance */
+  [data-animate] {
+    filter: blur(4px) !important;
+  }
+  
+  [data-animate]:not([data-animate].is-visible) {
+    filter: blur(4px) !important;
+  }
+  
+  /* Simplify card swap animations on mobile - reduce transform complexity */
+  .card-swap__item {
+    transition: transform 600ms cubic-bezier(0.22, 1, 0.36, 1),
+      opacity 300ms ease;
+    /* Use will-change only when necessary for better performance */
+    will-change: transform, opacity;
+  }
+  
+  /* Reduce animation complexity for typing effect on mobile */
+  .text-type__content::after {
+    animation-timing-function: ease-in-out;
+  }
+  
+  /* Optimize hover effects - disable on touch devices */
+  @media (hover: none) {
+    [data-tilt]:hover {
+      transform: none !important;
+    }
+  }
+  
+  /* Reduce backdrop filter blur for better performance */
+  .mobile-side-menu {
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+  }
+  
+  .modal-overlay {
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+  }
+}
+
+/* Extra optimizations for low-end devices */
+@media (max-width: 480px) {
+  /* Disable complex animations on very small screens */
+  .card-swap__item {
+    animation-duration: calc(var(--animation-delay, 4000ms) * 1.2);
+  }
+  
+  /* Reduce blur further */
+  [data-animate] {
+    filter: blur(2px) !important;
   }
 }
 
